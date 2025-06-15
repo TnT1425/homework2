@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/category_name_text_view"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingVertical="8dp"
+    android:paddingHorizontal="16dp"
+    android:text="Popular"
+    android:textSize="16sp"
+    android:textStyle="bold"
+    android:textColor="@android:color/black"
+    android:background="@drawable/selector_category_background"
+    android:layout_marginEnd="8dp"
+    android:clickable="true"
+    android:focusable="true"/>
