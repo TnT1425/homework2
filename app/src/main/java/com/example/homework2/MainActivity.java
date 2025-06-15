@@ -9,9 +9,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +32,7 @@ import com.example.homework2.api.ProductApi;
 import com.example.homework2.interfaces.ProductPresenterImpl;
 import com.example.homework2.interfaces.ProductViewImpl;
 import com.example.homework2.models.AllProductResponse;
-import com.example.homework2.models.FavoriteDataSource;
+import com.example.homework2.database.FavoriteDataSource;
 import com.example.homework2.models.FavoriteItem;
 import com.example.homework2.models.Product;
 import com.example.homework2.presenters.ProductPresenter;
@@ -65,6 +68,32 @@ public class MainActivity extends AppCompatActivity implements ProductViewImpl,
 
         productPresenter = new ProductPresenter(this);
         favoriteDataSource = new FavoriteDataSource(this);
+        ImageView navFavoriteIcon = findViewById(R.id.nav_favorite_icon);
+        FrameLayout cartButtonContainer = findViewById(R.id.cart_button_container);
+
+        if (navFavoriteIcon != null) {
+            navFavoriteIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Chuyển đến FavoriteListActivity
+                    Intent intent = new Intent(MainActivity.this, FavoritesActivity.class);
+                    startActivity(intent);
+                    Log.d(TAG, "Navigating to FavoriteListActivity");
+                }
+            });
+        }
+
+        if (cartButtonContainer != null) {
+            cartButtonContainer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Chuyển đến CartActivity (Bạn cần tạo CartActivity tương tự FavoriteListActivity)
+                    Intent intent = new Intent(MainActivity.this, FavoritesActivity.class);
+                    startActivity(intent);
+                    Log.d(TAG, "Navigating to CartActivity");
+                }
+            });
+        }
 
         productGridRecyclerView = findViewById(R.id.product_grid_recycler_view);
         searchEditText = findViewById(R.id.search_edit_text);

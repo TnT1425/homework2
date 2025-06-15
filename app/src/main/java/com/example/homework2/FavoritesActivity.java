@@ -2,6 +2,7 @@ package com.example.homework2;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -10,9 +11,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.homework2.adapters.FavoriteAdapter;
-import com.example.homework2.models.FavoriteDataSource;
+import com.example.homework2.adapters.FavoriteAdapter; // Import FavoriteAdapter của bạn
+import com.example.homework2.database.FavoriteDataSource;
+import com.example.homework2.models.FavoriteItem; // Đảm bảo import FavoriteItem model
 import com.example.homework2.models.Product;
+// import com.example.homework2.models.Product; // Không cần thiết nếu bạn dùng FavoriteItem
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +24,7 @@ public class FavoritesActivity extends AppCompatActivity implements FavoriteAdap
 
     private RecyclerView favoriteRecyclerView;
     private FavoriteAdapter favoriteAdapter;
-    private List<Product> favoriteItems; // Hoặc List<FavoriteItem> nếu bạn tạo model riêng
+    private List<FavoriteItem> favoriteItems; // Đã đổi từ Product sang FavoriteItem
     private ImageButton backButton;
 
     // Khai báo các ImageView cho Bottom Nav Bar
@@ -31,6 +34,8 @@ public class FavoritesActivity extends AppCompatActivity implements FavoriteAdap
     private ImageView bottomNavProfileIcon;
 
     private FavoriteDataSource favoriteDataSource;
+
+    private static final String TAG = "FavoritesActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,17 +47,17 @@ public class FavoritesActivity extends AppCompatActivity implements FavoriteAdap
         favoriteRecyclerView = findViewById(R.id.favorite_items_recycler_view);
 
         // Ánh xạ các icon Bottom Nav Bar
-        bottomNavHomeIcon = findViewById(R.id.bottom_nav_home_icon);
-        bottomNavFavoritesIcon = findViewById(R.id.bottom_nav_favorites_icon);
-        bottomNavNotificationsIcon = findViewById(R.id.bottom_nav_notifications_icon);
-        bottomNavProfileIcon = findViewById(R.id.bottom_nav_profile_icon);
+        bottomNavHomeIcon = findViewById(R.id.bottom_nav_home_icon); // ID từ activity_main.xml
+        bottomNavFavoritesIcon = findViewById(R.id.bottom_nav_favorites_icon); // ID từ activity_main.xml
+        // Lưu ý: Các ID này có thể cần được điều chỉnh nếu layout của activity_favorites khác activity_main
+        // Nếu activity_favorites có bottom nav bar riêng, các ID này phải là của layout đó.
+        bottomNavNotificationsIcon = findViewById(R.id.bottom_nav_notifications_icon); // Giả định ID
+        bottomNavProfileIcon = findViewById(R.id.bottom_nav_profile_icon); // Giả định ID
 
-
-        // Khởi tạo FavoriteDataSource (bạn cần tạo lớp này và model FavoriteItem)
-        favoriteDataSource = new FavoriteDataSource(this); // Giả sử bạn tạo FavoriteDataSource tương tự CartDataSource
+        // Khởi tạo FavoriteDataSource
+        favoriteDataSource = new FavoriteDataSource(this);
 
         favoriteItems = new ArrayList<>();
-        // TODO: Thay thế FavoriteAdapter bằng adapter thực tế khi bạn tạo nó
         favoriteAdapter = new FavoriteAdapter(favoriteItems, this); // 'this' là listener cho Adapter
         favoriteRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         favoriteRecyclerView.setAdapter(favoriteAdapter);
@@ -87,49 +92,49 @@ public class FavoritesActivity extends AppCompatActivity implements FavoriteAdap
         bottomNavFavoritesIcon.setOnClickListener(v -> {
             // Đã ở FavoritesActivity, có thể refresh hoặc không làm gì
             Toast.makeText(FavoritesActivity.this, "Bạn đang ở trang Favorites", Toast.LENGTH_SHORT).show();
+            // Nếu bạn muốn refresh khi click vào chính nó:
+            // loadFavoriteItems();
         });
 
         bottomNavNotificationsIcon.setOnClickListener(v -> {
             Toast.makeText(FavoritesActivity.this, "Mở màn hình Notifications", Toast.LENGTH_SHORT).show();
             // TODO: Triển khai Navigation tới NotificationsActivity
+            // Intent intent = new Intent(FavoritesActivity.this, NotificationsActivity.class);
+            // startActivity(intent);
         });
 
         bottomNavProfileIcon.setOnClickListener(v -> {
             Toast.makeText(FavoritesActivity.this, "Mở màn hình Profile", Toast.LENGTH_SHORT).show();
             // TODO: Triển khai Navigation tới ProfileActivity
+            // Intent intent = new Intent(FavoritesActivity.this, ProfileActivity.class);
+            // startActivity(intent);
         });
     }
 
     private void loadFavoriteItems() {
-        // Đây là nơi bạn sẽ lấy dữ liệu từ FavoriteDataSource
-        // Ví dụ: List<Product> items = favoriteDataSource.getAllFavoriteProducts();
-        // favoriteItems.clear();
-        // favoriteItems.addAll(items);
-        // favoriteAdapter.updateFavorites(favoriteItems); // Cần phương thức này trong FavoriteAdapter
-        // Nếu chưa có FavoriteDataSource và FavoriteItem model, bạn có thể tạo dữ liệu giả để kiểm tra layout trước
-        if (favoriteItems.isEmpty()) { // Chỉ thêm giả định nếu danh sách trống
-            for (int i = 0; i < 5; i++) {
-                Product dummyProduct = new Product();
-                dummyProduct.setId(100 + i);
-                dummyProduct.setTitle("Dummy Product " + (i + 1));
-                dummyProduct.setPrice(19.99 + i);
-                dummyProduct.setThumbnail("https://i.dummyjson.com/data/products/2/thumbnail.jpg"); // Ảnh mẫu
-                // Bạn cần thêm các trường size, quantity, color vào Product hoặc FavoriteItem model nếu muốn hiển thị
-                favoriteItems.add(dummyProduct);
-            }
-            favoriteAdapter.updateFavorites(favoriteItems);
-            Toast.makeText(this, "Tải sản phẩm yêu thích giả định.", Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "Loading favorite items...");
+        List<FavoriteItem> items = favoriteDataSource.getAllFavoriteItems(); // Lấy dữ liệu từ DB
+        favoriteItems.clear();
+        if (items != null) {
+            favoriteItems.addAll(items);
+            Log.d(TAG, "Loaded " + favoriteItems.size() + " items from database.");
+        } else {
+            Log.d(TAG, "No items found in database.");
         }
-
+        favoriteAdapter.updateFavorites(favoriteItems); // Cập nhật Adapter
+        if (favoriteItems.isEmpty()) {
+            Toast.makeText(this, "Không có sản phẩm yêu thích nào.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     // --- Triển khai các phương thức từ FavoriteAdapter.OnFavoriteItemActionListener ---
-    // (Bạn sẽ định nghĩa các phương thức này trong FavoriteAdapter của mình)
+
     @Override
-    public void onRemoveFavorite(Product item) { // Hoặc FavoriteItem item
+    public void onRemoveFavorite(FavoriteItem item) { // Đã sửa tham số từ Product sang FavoriteItem
+        Log.d(TAG, "Attempting to remove favorite: " + item.getTitle() + " (Product ID: " + item.getProductId() + ")");
+        favoriteDataSource.deleteFavoriteItem(item.getProductId()); // Xóa khỏi DB
         Toast.makeText(this, item.getTitle() + " đã được xóa khỏi yêu thích.", Toast.LENGTH_SHORT).show();
-        // favoriteDataSource.deleteFavoriteItem(item.getProductId()); // Giả định có phương thức này
-        favoriteItems.remove(item);
-        favoriteAdapter.updateFavorites(favoriteItems);
+        // Sau khi xóa khỏi DB, tải lại danh sách để UI được cập nhật
+        loadFavoriteItems();
     }
 }

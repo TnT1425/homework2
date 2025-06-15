@@ -23,6 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ProductDetailActivity" />
+        <activity android:name=".FavoritesActivity" />
     </application>
 
 </manifest>

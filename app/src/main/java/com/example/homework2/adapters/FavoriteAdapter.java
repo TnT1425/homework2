@@ -13,21 +13,22 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.homework2.R;
-import com.example.homework2.models.Product;
+import com.example.homework2.models.FavoriteItem; // Đảm bảo import FavoriteItem
+// import com.example.homework2.models.Product; // Không cần thiết ở đây nữa
 
 import java.util.List;
 
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.FavoriteViewHolder> {
 
-    private List<Product> favoriteItems;
+    private List<FavoriteItem> favoriteItems; // Đã đổi từ List<Product> sang List<FavoriteItem>
     private OnFavoriteItemActionListener listener;
 
     public interface OnFavoriteItemActionListener {
-        void onRemoveFavorite(Product item); // Hoặc FavoriteItem item
+        void onRemoveFavorite(FavoriteItem item); // Tham số đã đúng là FavoriteItem
         // Có thể thêm onFavoriteItemClick nếu muốn mở chi tiết sản phẩm
     }
 
-    public FavoriteAdapter(List<Product> favoriteItems, OnFavoriteItemActionListener listener) {
+    public FavoriteAdapter(List<FavoriteItem> favoriteItems, OnFavoriteItemActionListener listener) { // Tham số đã đúng là List<FavoriteItem>
         this.favoriteItems = favoriteItems;
         this.listener = listener;
     }
@@ -41,7 +42,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
 
     @Override
     public void onBindViewHolder(@NonNull FavoriteViewHolder holder, int position) {
-        Product item = favoriteItems.get(position); // Hoặc FavoriteItem
+        FavoriteItem item = favoriteItems.get(position); // Đã đổi từ Product sang FavoriteItem
         holder.bind(item);
     }
 
@@ -50,7 +51,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
         return favoriteItems.size();
     }
 
-    public void updateFavorites(List<Product> newFavoriteItems) { // Hoặc List<FavoriteItem>
+    public void updateFavorites(List<FavoriteItem> newFavoriteItems) { // Tham số đã đúng là List<FavoriteItem>
         this.favoriteItems = newFavoriteItems;
         notifyDataSetChanged();
     }
@@ -75,26 +76,23 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.Favori
             removeButton = itemView.findViewById(R.id.remove_favorite_button);
         }
 
-        public void bind(Product item) { // Hoặc FavoriteItem item
+        public void bind(FavoriteItem item) { // Tham số đã đúng là FavoriteItem
             itemTitle.setText(item.getTitle());
             itemPrice.setText(String.format("$%.2f", item.getPrice()));
 
-            // Lưu ý: Các trường size, quantity, color không có sẵn trong Product model từ DummyJSON
-            // Bạn cần thêm chúng vào Product.java hoặc tạo một FavoriteItem model riêng
-            // Ví dụ tạm thời:
-            itemSize.setText("Size: M (Temp)");
-            itemQuantity.setText("Quantity: 01 (Temp)");
-            itemColor.setText("Color: Black (Temp)");
-
+            // Lấy và hiển thị các trường size, quantity, color từ FavoriteItem
+            itemSize.setText("Size: " + item.getSize());
+            itemQuantity.setText("Quantity: " + item.getQuantity());
+            itemColor.setText("Color: " + item.getColor());
 
             Glide.with(itemView.getContext())
-                    .load(item.getThumbnail()) // Hoặc item.getImageUrl() nếu dùng FavoriteItem
+                    .load(item.getThumbnail()) // Sử dụng getThumbnail() từ FavoriteItem
                     .placeholder(R.drawable.img_product)
                     .error(R.drawable.img_product)
                     .into(itemImage);
 
             removeButton.setOnClickListener(v -> {
-                listener.onRemoveFavorite(item);
+                listener.onRemoveFavorite(item); // Đã truyền đúng FavoriteItem
             });
             // Thêm click listener cho toàn bộ item nếu muốn mở chi tiết sản phẩm
             itemView.setOnClickListener(v -> {
